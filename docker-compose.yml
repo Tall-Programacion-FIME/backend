@@ -1,9 +1,19 @@
 version: "3.3"
 services:
   api:
+    depends_on:
+      - postgres
     build: .
     ports:
       - "80:80"
     volumes:
       - ./app:/app
     entrypoint: /start-reload.sh
+    environment:
+      DATABASE_URL: postgresql://postgres:admin@postgres:5432/postgres
+  postgres:
+    image: postgres:alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: admin
