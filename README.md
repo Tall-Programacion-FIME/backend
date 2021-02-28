@@ -4,7 +4,9 @@
 
 ## Iniciar los contenedores
 ```console
-$ docker-compose up --build -d
+$ docker-compose build
+
+$ docker-compose up -d
 ```
 
 ## Puertos y URLS
