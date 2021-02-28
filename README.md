@@ -8,6 +8,10 @@ $ docker-compose build
 
 $ docker-compose up -d
 ```
+## Pruebas 
+```console
+$ docker-compose exec api pytest
+```
 
 ## Puertos y URLS
 - __API__: `8080`
