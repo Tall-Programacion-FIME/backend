@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build containers
         run: docker-compose up -d
-      -name: Check containers
+      - name: Check containers
         run: docker ps -a
       - name: Test
         run: docker-compose exec -T api pytest
