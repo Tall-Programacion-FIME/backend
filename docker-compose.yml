@@ -12,7 +12,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:admin@postgres:5432/postgres
   postgres:
-    image: postgres:alpine
+    image: postgres:latest
     ports:
       - '5432:5432'
     environment:
