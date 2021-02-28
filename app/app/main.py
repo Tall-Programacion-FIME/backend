@@ -1,20 +1,8 @@
 from fastapi import FastAPI
-from decouple import config
 
+from .core.settings import DOCS_CONFIG
+from .routers.api import router
 
-PRODUCTION = config("PRODUCTION", default=False)
-CONFIG = {
-    'openapi_url': '/openapi.json',
-    'docs_url': '/docs',
-    'redoc_url': '/redoc'
-}
+app = FastAPI(**DOCS_CONFIG)
 
-if PRODUCTION:
-    CONFIG = {key: None for key in CONFIG}
-
-app = FastAPI(**CONFIG)
-
-
-@app.get("/")
-async def root():
-    return {"message": "Hello world"}
+app.include_router(router)
