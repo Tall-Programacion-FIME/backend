@@ -15,9 +15,8 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   test:
-    runs-on: ubuntu-lastest
+    runs-on: ubuntu-latest
     steps:
-      - run: echo "Starting tests"
       - uses: actions/checkout@v2
       - name: Build containers
         run: docker-compose up -d
