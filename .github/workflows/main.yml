@@ -23,4 +23,4 @@ jobs:
       - name: Check containers
         run: docker ps -a
       - name: Test
-        run: docker-compose exec -T api pytest
+        run: docker-compose -p backend exec -T api pytest
