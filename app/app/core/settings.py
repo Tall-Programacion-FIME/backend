@@ -1,6 +1,8 @@
 from decouple import config
 
 PRODUCTION = config("PRODUCTION", default=False)
+DB_URL = config("DATABASE_URL")
+
 DOCS_CONFIG = {
     'openapi_url': '/openapi.json',
     'docs_url': '/docs',
