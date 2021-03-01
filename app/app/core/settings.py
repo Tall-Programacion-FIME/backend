@@ -1,6 +1,6 @@
 from decouple import config
 
-PRODUCTION = config("PRODUCTION", default=False)
+ENVIRONMENT = config("ENVIRONMENT")
 DB_URL = config("DATABASE_URL")
 
 DOCS_CONFIG = {
@@ -9,5 +9,5 @@ DOCS_CONFIG = {
     'redoc_url': '/redoc'
 }
 
-if PRODUCTION:
+if ENVIRONMENT == "PRODUCTION":
     DOCS_CONFIG = {key: None for key in DOCS_CONFIG}
