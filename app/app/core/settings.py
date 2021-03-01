@@ -1,8 +1,12 @@
 from decouple import config
 
+# Current environment
 ENVIRONMENT = config("ENVIRONMENT")
+
+# Database
 DB_URL = config("DATABASE_URL")
 
+# API docs configuration
 DOCS_CONFIG = {
     'openapi_url': '/openapi.json',
     'docs_url': '/docs',
