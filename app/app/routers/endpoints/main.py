@@ -14,7 +14,7 @@ async def root():
     return {"message": "Hello world"}
 
 
-@router.post("/get_token", response_model=schemas.Token)
+@router.post("/token", response_model=schemas.Token)
 async def login_for_access_token(user: schemas.UserCreate, authorize: AuthJWT = Depends(),
                                  db: Session = Depends(get_db)):
     user = authenticate_user(db, user.email, user.password)
@@ -27,3 +27,11 @@ async def login_for_access_token(user: schemas.UserCreate, authorize: AuthJWT = 
     access_token = authorize.create_access_token(subject=user.email)
     refresh_token = authorize.create_refresh_token(subject=user.email)
     return {"access_token": access_token, "refresh_token": refresh_token}
+
+
+@router.post("/refresh_token", response_model=schemas.TokenBase)
+async def refresh_old_token(authorize: AuthJWT = Depends()):
+    authorize.jwt_refresh_token_required()
+    current_user = authorize.get_jwt_subject()
+    new_access_token = authorize.create_access_token(subject=current_user)
+    return {"access_token": new_access_token}
