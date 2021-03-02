@@ -1,7 +1,6 @@
 import app.crud as crud
 import app.schemas as schemas
 from app.core import utils
-from app.core.security import authenticate_user
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from fastapi_jwt_auth import AuthJWT
@@ -20,20 +19,6 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if db_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
     return crud.create_user(db=db, user=user)
-
-
-@router.post("/get_token", response_model=schemas.Token)
-async def login_for_access_token(user: schemas.UserCreate, authorize: AuthJWT = Depends(),
-                                 db: Session = Depends(get_db)):
-    user = authenticate_user(db, user.email, user.password)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-    access_token = authorize.create_access_token(subject=user.email)
-    return {"access_token": access_token}
 
 
 @router.get("/me", response_model=schemas.User)
