@@ -1,4 +1,4 @@
-from pydantic import BaseSettings
+from pydantic import BaseSettings, Field
 
 
 def set_url(environment: str, dev_value: str) -> str:
@@ -10,7 +10,7 @@ class __Settings(BaseSettings):
     DATABASE_URL: str
     ENVIRONMENT: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    SECRET_KEY: str
+    authjwt_secret_key: str = Field(..., env="SECRET_KEY")
     ALGORITHM: str = "HS256"
     docs_config: dict = None
 
