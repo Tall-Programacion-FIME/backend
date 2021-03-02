@@ -15,6 +15,7 @@ def get_random_string(length: int = 5) -> str:
 
 
 def test_create_user():
+    """Tests register function"""
     email = get_random_string() + "@uanl.edu.mx"
     password = "admin"
     res = client.post("/user/", json={
@@ -25,3 +26,12 @@ def test_create_user():
     assert res.status_code == 200
     assert json_response["email"] == email
     assert json_response["is_active"] is True
+
+
+def test_valid_email():
+    """Tests that only school emails can register"""
+    res = client.post("/user/", json={
+        "email": "admin@otherdomain.com",
+        "password": "admin"
+    })
+    assert res.status_code == 400
