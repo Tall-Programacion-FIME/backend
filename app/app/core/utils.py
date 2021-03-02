@@ -1,6 +1,4 @@
-
 def is_valid_email_domain(email: str) -> bool:
-    _, domain = email.split("@")
-    if domain != "uanl.edu.mx":
+    if "@uanl.edu.mx" not in email:
         return False
     return True
