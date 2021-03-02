@@ -57,6 +57,14 @@ def test_login_for_access_token():
     assert access_token is not None
 
 
+def test_login_with_incorrect_credentials():
+    res = client.post("/user/get_token", data={
+        "username": "nonexisting@admin.com",
+        "password": "admin"
+    })
+    assert res.status_code == 401
+
+
 def test_valid_email():
     """Tests that only school emails can register"""
     res = client.post("/user/", json={
