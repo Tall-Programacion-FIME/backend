@@ -11,3 +11,4 @@ bcrypt==3.2.0
 python-jose==3.2.0
 cryptography==3.4.6
 python-multipart==0.0.5
+pytest-cov==2.11.1

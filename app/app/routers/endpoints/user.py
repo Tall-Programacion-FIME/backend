@@ -9,7 +9,8 @@ from ...dependencies import get_db
 import app.schemas as schemas
 import app.crud as crud
 from app.core.security import authenticate_user, create_access_token, get_current_active_user
-from app.core import settings, utils
+from app.core import utils
+from app.core.settings import settings
 
 router = APIRouter()
 
@@ -17,7 +18,7 @@ router = APIRouter()
 @router.post("/", response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if not utils.is_valid_email_domain(user.email):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not a valid email domain")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not a valid email domain")
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
@@ -39,12 +40,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
-
-
-@router.get("/", response_model=List[schemas.User])
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = crud.get_users(db, skip=skip, limit=limit)
-    return users
 
 
 @router.get("/me", response_model=schemas.User)
