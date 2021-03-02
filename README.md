@@ -10,7 +10,7 @@ $ docker-compose up -d
 ```
 ## Pruebas 
 ```console
-$ docker-compose exec api pytest
+$ docker-compose exec api pytest --disable-warnings --cov=app --cov-report=html
 ```
 
 ## Puertos y URLS
