@@ -9,7 +9,7 @@ from jose import JWTError, jwt
 from app.crud import get_user_by_email
 import app.schemas as schemas
 from .passwords import verify_password
-from . import settings
+from .settings import settings
 from app.dependencies import get_db
 
 

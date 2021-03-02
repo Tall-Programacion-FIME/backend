@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
-from .core.settings import DOCS_CONFIG
+from .core.settings import settings
 from .routers.api import router
 
-app = FastAPI(**DOCS_CONFIG)
+app = FastAPI(**settings.docs_config)
 
 app.include_router(router)

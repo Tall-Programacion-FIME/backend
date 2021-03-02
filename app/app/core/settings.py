@@ -1,23 +1,25 @@
-from decouple import config
+from pydantic import BaseSettings
 
-# Current environment
-ENVIRONMENT = config("ENVIRONMENT")
 
-# Database
-DB_URL = config("DATABASE_URL")
+def set_url(environment: str, dev_value: str) -> str:
+    return None if environment == "PRODUCTION" else dev_value
 
-# API docs configuration
-DOCS_CONFIG = {
-    'openapi_url': '/openapi.json',
-    'docs_url': '/docs',
-    'redoc_url': '/redoc'
+
+class __Settings(BaseSettings):
+    ENVIRONMENT: str
+    DATABASE_URL: str
+    ENVIRONMENT: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    docs_config: dict = None
+
+
+_settings = __Settings()
+_settings.docs_config = {
+    'openapi_url': set_url(__Settings().ENVIRONMENT, '/openapi.json'),
+    'docs_url': set_url(__Settings().ENVIRONMENT, '/docs'),
+    'redoc_url': set_url(__Settings().ENVIRONMENT, '/redoc')
 }
 
-if ENVIRONMENT == "PRODUCTION":
-    DOCS_CONFIG = {key: None for key in DOCS_CONFIG}
-
-
-# JWT
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-SECRET_KEY = config("SECRET_KEY")
-ALGORITHM = "HS256"
+settings: __Settings = _settings

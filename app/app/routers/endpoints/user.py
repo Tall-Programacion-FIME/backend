@@ -9,7 +9,8 @@ from ...dependencies import get_db
 import app.schemas as schemas
 import app.crud as crud
 from app.core.security import authenticate_user, create_access_token, get_current_active_user
-from app.core import settings, utils
+from app.core import utils
+from app.core.settings import settings
 
 router = APIRouter()
 
