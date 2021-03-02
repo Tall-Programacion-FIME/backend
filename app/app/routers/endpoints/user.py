@@ -1,16 +1,13 @@
-from datetime import timedelta
-from typing import List
-
+import app.crud as crud
+import app.schemas as schemas
+from app.core import utils
+from app.core.security import authenticate_user
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
+from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
 from ...dependencies import get_db
-import app.schemas as schemas
-import app.crud as crud
-from app.core.security import authenticate_user, create_access_token, get_current_active_user
-from app.core import utils
-from app.core.settings import settings
 
 router = APIRouter()
 
@@ -26,25 +23,26 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/get_token", response_model=schemas.Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = authenticate_user(db, form_data.username, form_data.password)
+async def login_for_access_token(user: schemas.UserCreate, authorize: AuthJWT = Depends(),
+                                 db: Session = Depends(get_db)):
+    user = authenticate_user(db, user.email, user.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"}
         )
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.email},
-        expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
+    access_token = authorize.create_access_token(subject=user.email)
+    return {"access_token": access_token}
 
 
 @router.get("/me", response_model=schemas.User)
-def read_users_me(current_user: schemas.User = Depends(get_current_active_user)):
-    return current_user
+def read_users_me(token: str = Depends(OAuth2PasswordBearer(tokenUrl="/user/get_token")),
+                  authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
+    authorize.jwt_required(token=token)
+    current_user = authorize.get_jwt_subject()
+    user = crud.get_user_by_email(db, email=current_user)
+    return user
 
 
 @router.get("/{user_id}", response_model=schemas.User)
