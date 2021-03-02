@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from ...dependencies import get_db
 import app.schemas as schemas
 import app.crud as crud
-from app.core.security import authenticate_user, create_access_token
+from app.core.security import authenticate_user, create_access_token, get_current_active_user
 from app.core import settings, utils
 
 router = APIRouter()
@@ -45,6 +45,11 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = crud.get_users(db, skip=skip, limit=limit)
     return users
+
+
+@router.get("/me", response_model=schemas.User)
+def read_users_me(current_user: schemas.User = Depends(get_current_active_user)):
+    return current_user
 
 
 @router.get("/{user_id}", response_model=schemas.User)
