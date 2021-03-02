@@ -65,6 +65,18 @@ def test_login_with_incorrect_credentials():
     assert res.status_code == 401
 
 
+def test_user_page():
+    res = client.get("/user/me", headers={
+        'Authorization': f'Bearer {access_token}'
+    })
+    assert res.status_code == 200
+    assert res.json() == {
+        'email': email,
+        'id': user_id,
+        'is_active': True
+    }
+
+
 def test_valid_email():
     """Tests that only school emails can register"""
     res = client.post("/user/", json={
