@@ -6,6 +6,7 @@ from ..main import app
 
 client = TestClient(app)
 
+name = "Sebastian Marines"
 email = uuid.uuid4().hex + "testingadmin@uanl.edu.mx"
 password = "admin"
 user_id = None
@@ -18,6 +19,7 @@ def test_create_user():
     global user_id
     res = client.post("/user/", json={
         "email": email,
+        "name": name,
         "password": password
     })
     json_response = res.json()
@@ -30,6 +32,7 @@ def test_create_user():
 def test_already_registered_email():
     res = client.post("/user/", json={
         "email": email,
+        "name": name,
         "password": password
     })
     assert res.status_code == 400
@@ -83,6 +86,7 @@ def test_user_page():
     assert res.status_code == 200
     assert res.json() == {
         'email': email,
+        'name': name,
         'id': user_id,
         'is_active': True
     }
@@ -92,6 +96,7 @@ def test_valid_email():
     """Tests that only school emails can register"""
     res = client.post("/user/", json={
         "email": "admin@otherdomain.com",
+        "name": name,
         "password": "admin"
     })
     assert res.status_code == 403
