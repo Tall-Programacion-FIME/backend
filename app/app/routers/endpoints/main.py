@@ -19,7 +19,7 @@ async def root():
         "description":  "Incorrect username or password"
     }
 })
-async def login_for_access_token(user: schemas.UserCreate, authorize: AuthJWT = Depends(),
+async def login_for_access_token(user: schemas.UserToken, authorize: AuthJWT = Depends(),
                                  db: Session = Depends(get_db)):
     """
     Obtener un token de autorización y un token de actualización
