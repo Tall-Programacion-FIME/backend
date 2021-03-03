@@ -8,7 +8,6 @@ def set_url(environment: str, dev_value: str) -> str:
 class __Settings(BaseSettings):
     ENVIRONMENT: str
     DATABASE_URL: str
-    ENVIRONMENT: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     authjwt_secret_key: str = Field(..., env="SECRET_KEY")
     ALGORITHM: str = "HS256"
