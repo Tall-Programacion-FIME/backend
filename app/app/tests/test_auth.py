@@ -47,7 +47,7 @@ def test_non_existing_id():
 
 def test_login_for_access_token():
     global access_token
-    res = client.post("/user/get_token", json={
+    res = client.post("/token", json={
         "email": email,
         "password": password
     })
@@ -58,7 +58,7 @@ def test_login_for_access_token():
 
 
 def test_login_with_incorrect_credentials():
-    res = client.post("/user/get_token", json={
+    res = client.post("/token", json={
         "email": "nonexisting@admin.com",
         "password": "admin"
     })
