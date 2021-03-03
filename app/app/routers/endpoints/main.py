@@ -17,6 +17,9 @@ async def root():
 @router.post("/token", response_model=schemas.Token)
 async def login_for_access_token(user: schemas.UserCreate, authorize: AuthJWT = Depends(),
                                  db: Session = Depends(get_db)):
+    """
+    Obtener un token de autorización y un token de actualización
+    """
     user = authenticate_user(db, user.email, user.password)
     if not user:
         raise HTTPException(
@@ -31,6 +34,10 @@ async def login_for_access_token(user: schemas.UserCreate, authorize: AuthJWT = 
 
 @router.post("/refresh_token", response_model=schemas.TokenBase)
 async def refresh_old_token(authorize: AuthJWT = Depends()):
+    """
+    Obtener un nuevo token con el token de actualización.
+    El token de actualización se envia en la cabezera de autorización como un token 'Bearer'
+    """
     authorize.jwt_refresh_token_required()
     current_user = authorize.get_jwt_subject()
     new_access_token = authorize.create_access_token(subject=current_user)
