@@ -25,7 +25,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/me", response_model=schemas.User)
-def read_users_me(token: str = Depends(OAuth2PasswordBearer(tokenUrl="/user/get_token")),
+def read_users_me(token: str = Depends(OAuth2PasswordBearer(tokenUrl="/token")),
                   authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
     authorize.jwt_required(token=token)
     current_user = authorize.get_jwt_subject()
