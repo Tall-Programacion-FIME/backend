@@ -60,10 +60,18 @@ def test_login_for_access_token():
     assert access_token is not None
 
 
-def test_login_with_incorrect_credentials():
+def test_login_with_incorrect_email():
     res = client.post("/token", json={
         "email": "nonexisting@admin.com",
         "password": "admin"
+    })
+    assert res.status_code == 401
+
+
+def test_login_with_incorrect_password():
+    res = client.post("/token", json={
+        "email": email,
+        "password": "notmypassword"
     })
     assert res.status_code == 401
 
