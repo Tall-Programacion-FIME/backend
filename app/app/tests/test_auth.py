@@ -83,4 +83,4 @@ def test_valid_email():
         "email": "admin@otherdomain.com",
         "password": "admin"
     })
-    assert res.status_code == 400
+    assert res.status_code == 403
