@@ -1,8 +1,7 @@
-from sqlalchemy.orm import Session
-
-from app.db import models
 import app.schemas as schemas
 from app.core import passwords
+from app.db import models
+from sqlalchemy.orm import Session
 
 
 def get_user(db: Session, user_id: int):

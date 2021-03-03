@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from fastapi.openapi.utils import get_openapi
 from fastapi_jwt_auth import AuthJWT
 
 from .core.settings import settings
