@@ -43,3 +43,11 @@ async def create_book(name: str = Form(...), author: str = Form(...), cover: Upl
     url = get_file_url(stored_image.object_name)
     book = schemas.BookCreate(name=name, author=author, cover_url=url)
     return crud.create_book(db, book=book, user_id=user.id)
+
+
+@router.get("/{book_id}", response_model=schemas.Book)
+def get_book(book_id: str, db: Session = Depends(get_db)):
+    db_book = crud.get_book(db, book_id=book_id)
+    if db_book is None:
+        raise HTTPException(status_code=404, detail="Book not found")
+    return db_book
