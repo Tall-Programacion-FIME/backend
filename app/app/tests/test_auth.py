@@ -3,6 +3,7 @@ import uuid
 from fastapi.testclient import TestClient
 
 from ..main import app
+from .urls import *
 
 client = TestClient(app)
 
@@ -17,7 +18,7 @@ refresh_token = None
 def test_create_user():
     """Tests register function"""
     global user_id
-    res = client.post("/user/", json={
+    res = client.post(Users.user, json={
         "email": email,
         "name": name,
         "password": password
@@ -30,7 +31,7 @@ def test_create_user():
 
 
 def test_already_registered_email():
-    res = client.post("/user/", json={
+    res = client.post(Users.user, json={
         "email": email,
         "name": name,
         "password": password
@@ -39,20 +40,20 @@ def test_already_registered_email():
 
 
 def test_get_user_by_id():
-    res = client.get(f"/user/{user_id}")
+    res = client.get(f"{Users.user}{user_id}")
     assert res.status_code == 200
     assert "email" in res.text
 
 
 def test_non_existing_id():
-    res = client.get("/user/1000000")
+    res = client.get(f"{Users.user}1000000")
     assert res.status_code == 404
 
 
 def test_login_for_access_token():
     global access_token
     global refresh_token
-    res = client.post("/token", json={
+    res = client.post(Auth.login, json={
         "email": email,
         "password": password
     })
@@ -64,7 +65,7 @@ def test_login_for_access_token():
 
 
 def test_login_with_incorrect_email():
-    res = client.post("/token", json={
+    res = client.post(Auth.login, json={
         "email": "nonexisting@admin.com",
         "password": "admin"
     })
@@ -72,7 +73,7 @@ def test_login_with_incorrect_email():
 
 
 def test_login_with_incorrect_password():
-    res = client.post("/token", json={
+    res = client.post(Auth.login, json={
         "email": email,
         "password": "notmypassword"
     })
@@ -80,7 +81,7 @@ def test_login_with_incorrect_password():
 
 
 def test_user_page():
-    res = client.get("/user/me", headers={
+    res = client.get(Users.profile, headers={
         'Authorization': f'Bearer {access_token}'
     })
     assert res.status_code == 200
@@ -95,7 +96,7 @@ def test_user_page():
 
 def test_valid_email():
     """Tests that only school emails can register"""
-    res = client.post("/user/", json={
+    res = client.post(Users.user, json={
         "email": "admin@otherdomain.com",
         "name": name,
         "password": "admin"
@@ -104,7 +105,7 @@ def test_valid_email():
 
 
 def test_token_refresh():
-    res = client.post("/refresh_token", headers={
+    res = client.post(Auth.refresh_token, headers={
         'Authorization': f'Bearer {refresh_token}'
     })
     assert "access_token" in res.text
