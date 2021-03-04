@@ -1,4 +1,7 @@
+from typing import List
+
 from pydantic import BaseModel
+from .book import Book
 
 
 class UserBase(BaseModel):
@@ -18,6 +21,7 @@ class UserToken(BaseModel):
 class User(UserBase):
     id: int
     is_active: bool
+    books_for_sale: List[Book]
 
     class Config:
         orm_mode = True
