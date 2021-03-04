@@ -6,7 +6,7 @@ import app.schemas as schemas
 from app.core.settings import settings
 from app.core.storage import client as storage_client
 from app.core.utils import get_file_url
-from fastapi import APIRouter, Depends, UploadFile, File, Form
+from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
@@ -16,7 +16,9 @@ from ...dependencies import get_db
 router = APIRouter()
 
 
-@router.post("/create_book", response_model=schemas.Book)
+@router.post("/create_book", response_model=schemas.Book, responses={
+    400: {"description": "File type not supported"}
+})
 async def create_book(name: str = Form(...), author: str = Form(...), cover: UploadFile = File(...),
                       token: str = Depends(OAuth2PasswordBearer(tokenUrl="/token")),
                       authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
@@ -24,6 +26,11 @@ async def create_book(name: str = Form(...), author: str = Form(...), cover: Upl
     current_user = authorize.get_jwt_subject()
     user = crud.get_user_by_email(db, email=current_user)
     _, file_extension = path.splitext(cover.filename)
+    if file_extension not in ['.jpeg', '.jpg', '.png']:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File type not supported"
+        )
     new_file_name = uuid4().hex + file_extension
     stored_image = storage_client.put_object(
         bucket_name=settings.BUCKET_NAME,
