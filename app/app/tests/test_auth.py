@@ -88,6 +88,7 @@ def test_user_page():
         'email': email,
         'name': name,
         'id': user_id,
+        'books_for_sale': [],
         'is_active': True
     }
 
