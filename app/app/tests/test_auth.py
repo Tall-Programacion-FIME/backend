@@ -2,8 +2,8 @@ import uuid
 
 from fastapi.testclient import TestClient
 
-from ..main import app
 from .urls import *
+from ..main import app
 
 client = TestClient(app)
 
@@ -110,3 +110,17 @@ def test_token_refresh():
     })
     assert "access_token" in res.text
     assert "refresh_token" not in res.text
+
+
+def test_upload_book():
+    book_cover = open("app/tests/book_cover.jpg", "rb")
+    res = client.post(
+        Books.create,
+        headers={'Authorization': f'Bearer {access_token}'},
+        files={"cover": book_cover},
+        data={
+            "name": "Fahrenheit 451",
+            "author": "Ray Bradbury"
+        }
+    )
+    assert res.status_code == 200
