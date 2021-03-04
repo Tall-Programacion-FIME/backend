@@ -39,3 +39,12 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     if db_user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return db_user
+
+
+@router.post("/create_book", response_model=schemas.Book)
+def create_book(book: schemas.BookCreate, token: str = Depends(OAuth2PasswordBearer(tokenUrl="/token")),
+                authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
+    authorize.jwt_required(token=token)
+    current_user = authorize.get_jwt_subject()
+    user = crud.get_user_by_email(db, email=current_user)
+    return crud.create_book(db, book=book, user_id=user.id)
