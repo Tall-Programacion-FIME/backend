@@ -109,4 +109,3 @@ def test_token_refresh():
     })
     assert "access_token" in res.text
     assert "refresh_token" not in res.text
-

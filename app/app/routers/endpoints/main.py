@@ -16,7 +16,7 @@ async def root():
 
 @router.post("/token", response_model=schemas.Token, responses={
     401: {
-        "description":  "Incorrect username or password"
+        "description": "Incorrect username or password"
     }
 })
 async def login_for_access_token(user: schemas.UserToken, authorize: AuthJWT = Depends(),
