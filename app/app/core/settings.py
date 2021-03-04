@@ -12,6 +12,9 @@ class __Settings(BaseSettings):
     authjwt_secret_key: str = Field(..., env="SECRET_KEY")
     ALGORITHM: str = "HS256"
     docs_config: dict = None
+    AWS_ACCESS_KEY: str
+    AWS_SECRET_KEY: str
+    BUCKET_NAME: str = "book-covers"
 
 
 _settings = __Settings()
