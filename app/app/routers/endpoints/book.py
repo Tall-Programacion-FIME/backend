@@ -11,8 +11,9 @@ from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, s
 from fastapi.security import OAuth2PasswordBearer
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
+from elasticsearch import Elasticsearch
 
-from ...dependencies import get_db
+from ...dependencies import get_db, get_es
 
 router = APIRouter()
 
@@ -22,7 +23,7 @@ router = APIRouter()
 })
 async def create_book(name: str = Form(...), author: str = Form(...), cover: UploadFile = File(...),
                       token: str = Depends(OAuth2PasswordBearer(tokenUrl="/token")),
-                      authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
+                      authorize: AuthJWT = Depends(), db: Session = Depends(get_db), es: Elasticsearch = Depends(get_es)):
     authorize.jwt_required(token=token)
     current_user = authorize.get_jwt_subject()
     user = crud.get_user_by_email(db, email=current_user)
@@ -43,7 +44,7 @@ async def create_book(name: str = Form(...), author: str = Form(...), cover: Upl
     )
     url = get_file_url(stored_image.object_name)
     book = schemas.BookCreate(name=name, author=author, cover_url=url)
-    return crud.create_book(db, book=book, user_id=user.id)
+    return crud.create_book(db, es, book=book, user_id=user.id)
 
 
 @router.get("/{book_id}", response_model=schemas.Book)
