@@ -14,3 +14,4 @@ class Books:
     prefix = "/book"
     base = prefix + "/"
     create = prefix + "/create"
+    search = prefix + "/search/"

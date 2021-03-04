@@ -160,3 +160,15 @@ def test_list_books():
     res = client.get(Books.base)
     res_json = res.json()
     assert len(res_json) > 0
+
+
+def test_search_book():
+    res = client.get(Books.search, params={'q': 'Fahrenheit'})
+    res_json = res.json()
+    assert res.status_code == 200
+    assert len(res_json) != 0
+
+
+def test_not_found_search():
+    res = client.get(Books.search, params={'q': 'Non existing book'})
+    assert res.status_code == 404
