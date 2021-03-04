@@ -13,6 +13,7 @@ password = "admin"
 user_id = None
 access_token = None
 refresh_token = None
+book_id = None
 
 
 def test_create_user():
@@ -113,6 +114,7 @@ def test_token_refresh():
 
 
 def test_upload_book():
+    global book_id
     book_cover = open("app/tests/book_cover.jpg", "rb")
     res = client.post(
         Books.create,
@@ -123,6 +125,7 @@ def test_upload_book():
             "author": "Ray Bradbury"
         }
     )
+    book_id = res.json()["id"]
     assert res.status_code == 200
 
 
@@ -138,3 +141,22 @@ def test_upload_book_with_unsupported_file_type():
         }
     )
     assert res.status_code == 400
+
+
+def test_get_book():
+    res = client.get(Books.base + str(book_id))
+    res_json = res.json()
+    assert res.status_code == 200
+    assert res_json["name"] == "Fahrenheit 451"
+    assert res_json["author"] == "Ray Bradbury"
+
+
+def test_non_existent_book():
+    res = client.get(Books.base + "100000")
+    assert res.status_code == 404
+
+
+def test_list_books():
+    res = client.get(Books.base)
+    res_json = res.json()
+    assert len(res_json) > 0
