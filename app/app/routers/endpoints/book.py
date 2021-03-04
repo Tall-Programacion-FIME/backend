@@ -5,6 +5,7 @@ import app.crud as crud
 import app.schemas as schemas
 from app.core.settings import settings
 from app.core.storage import client as storage_client
+from app.core.utils import get_file_url
 from fastapi import APIRouter, Depends, UploadFile, File, Form
 from fastapi.security import OAuth2PasswordBearer
 from fastapi_jwt_auth import AuthJWT
@@ -29,8 +30,9 @@ async def create_book(name: str = Form(...), author: str = Form(...), cover: Upl
         object_name=new_file_name,
         data=cover.file,
         length=-1,
+        content_type=cover.content_type,
         part_size=10 * 1024 * 1024
     )
-    # TODO append s3 bucket url to cover_url
-    book = schemas.BookCreate(name=name, author=author, cover_url=stored_image.object_name)
+    url = get_file_url(stored_image.object_name)
+    book = schemas.BookCreate(name=name, author=author, cover_url=url)
     return crud.create_book(db, book=book, user_id=user.id)
