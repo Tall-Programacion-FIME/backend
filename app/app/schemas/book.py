@@ -4,6 +4,7 @@ from pydantic import BaseModel
 class BookBase(BaseModel):
     name: str
     author: str
+    cover_url: str
 
 
 class BookCreate(BookBase):
