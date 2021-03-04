@@ -124,3 +124,17 @@ def test_upload_book():
         }
     )
     assert res.status_code == 200
+
+
+def test_upload_book_with_unsupported_file_type():
+    book_cover = open("app/tests/dummy.pdf", "rb")
+    res = client.post(
+        Books.create,
+        headers={'Authorization': f'Bearer {access_token}'},
+        files={"cover": book_cover},
+        data={
+            "name": "Not an image",
+            "author": "Not an author"
+        }
+    )
+    assert res.status_code == 400
