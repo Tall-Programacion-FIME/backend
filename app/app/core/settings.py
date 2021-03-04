@@ -16,6 +16,7 @@ class __Settings(BaseSettings):
     AWS_SECRET_KEY: str
     BUCKET_NAME: str = "book-covers-uanl"
     REGION: str = "us-east-1"
+    ELASTICSEARCH_URL: str
 
 
 _settings = __Settings()
