@@ -17,7 +17,7 @@ from ...dependencies import get_db
 router = APIRouter()
 
 
-@router.post("/create_book", response_model=schemas.Book, responses={
+@router.post("/create", response_model=schemas.Book, responses={
     400: {"description": "File type not supported"}
 })
 async def create_book(name: str = Form(...), author: str = Form(...), cover: UploadFile = File(...),

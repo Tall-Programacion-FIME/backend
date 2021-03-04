@@ -12,4 +12,4 @@ class Auth:
 
 class Books:
     prefix = "/book"
-    create = prefix + "/create_book"
+    create = prefix + "/create"
