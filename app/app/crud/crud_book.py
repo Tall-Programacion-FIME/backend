@@ -9,3 +9,7 @@ def create_book(db: Session, book: schemas.BookCreate, user_id: int) -> schemas.
     db.commit()
     db.refresh(db_book)
     return db_book
+
+
+def get_book(db: Session, book_id: int) -> schemas.Book:
+    return db.query(models.Book).filter(models.Book.id == book_id).first()
