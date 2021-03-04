@@ -13,4 +13,4 @@ def get_es():
     try:
         yield es
     finally:
-        es.close()
+        ...

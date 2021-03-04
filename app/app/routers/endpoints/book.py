@@ -7,11 +7,11 @@ import app.schemas as schemas
 from app.core.settings import settings
 from app.core.storage import client as storage_client
 from app.core.utils import get_file_url
+from elasticsearch import Elasticsearch
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
-from elasticsearch import Elasticsearch
 
 from ...dependencies import get_db, get_es
 
@@ -58,3 +58,26 @@ def get_book(book_id: str, db: Session = Depends(get_db)):
 @router.get("/", response_model=List[schemas.Book])
 def list_books(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return crud.get_all_books(db, skip=skip, limit=limit)
+
+
+@router.get("/search/", response_model=List[schemas.Book])
+def search_for_book(q: str, db: Session = Depends(get_db), es: Elasticsearch = Depends(get_es)):
+    query = {
+        "query": {
+            "multi_match": {
+                "query": f"{q}",
+                "fields": ["name", "author"]
+            }
+        }
+    }
+    res = es.search(body=query, index="books")
+    queried_books = res["hits"]["hits"]
+    if len(queried_books) == 0:
+        raise HTTPException(status_code=404, detail="No books found matching your query")
+    results: List[schemas.Book] = []
+    for book in queried_books:
+        book_id = book["_source"]["id"]
+        results.append(
+            crud.get_book(db, book_id=book_id)
+        )
+    return results
