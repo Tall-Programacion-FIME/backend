@@ -8,5 +8,6 @@ client = Minio(
     endpoint="s3.amazonaws.com" if IS_PRODUCTION else "minio:9000",
     access_key=settings.AWS_ACCESS_KEY,
     secret_key=settings.AWS_SECRET_KEY,
-    secure=True if IS_PRODUCTION else False
+    secure=IS_PRODUCTION,
+    region=settings.REGION if IS_PRODUCTION else None
 )
