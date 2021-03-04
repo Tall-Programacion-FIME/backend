@@ -9,11 +9,6 @@ from sqlalchemy.orm import Session
 router = APIRouter()
 
 
-@router.get("/")
-async def root():
-    return {"message": "Hello world"}
-
-
 @router.post("/token", response_model=schemas.Token, responses={
     401: {
         "description": "Incorrect username or password"
