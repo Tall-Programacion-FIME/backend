@@ -1,5 +1,6 @@
 from app.db import Base
 from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy.orm import relationship
 
 
 class User(Base):
@@ -10,3 +11,5 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
+
+    books_for_sale = relationship("Book", back_populates="owner")
