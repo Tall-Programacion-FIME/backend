@@ -7,22 +7,23 @@ import app.schemas as schemas
 from app.core.settings import settings
 from app.core.storage import client as storage_client
 from app.core.utils import get_file_url
+from elasticsearch import Elasticsearch
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
-from ...dependencies import get_db
+from ...dependencies import get_db, get_es
 
 router = APIRouter()
 
 
-@router.post("/create_book", response_model=schemas.Book, responses={
+@router.post("/create", response_model=schemas.Book, responses={
     400: {"description": "File type not supported"}
 })
 async def create_book(name: str = Form(...), author: str = Form(...), cover: UploadFile = File(...),
                       token: str = Depends(OAuth2PasswordBearer(tokenUrl="/token")),
-                      authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
+                      authorize: AuthJWT = Depends(), db: Session = Depends(get_db), es: Elasticsearch = Depends(get_es)):
     authorize.jwt_required(token=token)
     current_user = authorize.get_jwt_subject()
     user = crud.get_user_by_email(db, email=current_user)
@@ -43,7 +44,7 @@ async def create_book(name: str = Form(...), author: str = Form(...), cover: Upl
     )
     url = get_file_url(stored_image.object_name)
     book = schemas.BookCreate(name=name, author=author, cover_url=url)
-    return crud.create_book(db, book=book, user_id=user.id)
+    return crud.create_book(db, es, book=book, user_id=user.id)
 
 
 @router.get("/{book_id}", response_model=schemas.Book)
@@ -57,3 +58,26 @@ def get_book(book_id: str, db: Session = Depends(get_db)):
 @router.get("/", response_model=List[schemas.Book])
 def list_books(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return crud.get_all_books(db, skip=skip, limit=limit)
+
+
+@router.get("/search/", response_model=List[schemas.Book])
+def search_for_book(q: str, db: Session = Depends(get_db), es: Elasticsearch = Depends(get_es)):
+    query = {
+        "query": {
+            "multi_match": {
+                "query": f"{q}",
+                "fields": ["name", "author"]
+            }
+        }
+    }
+    res = es.search(body=query, index="books")
+    queried_books = res["hits"]["hits"]
+    if len(queried_books) == 0:
+        raise HTTPException(status_code=404, detail="No books found matching your query")
+    results: List[schemas.Book] = []
+    for book in queried_books:
+        book_id = book["_source"]["id"]
+        results.append(
+            crud.get_book(db, book_id=book_id)
+        )
+    return results
