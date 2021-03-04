@@ -1,4 +1,5 @@
 from os import path
+from typing import List
 from uuid import uuid4
 
 import app.crud as crud
@@ -51,3 +52,8 @@ def get_book(book_id: str, db: Session = Depends(get_db)):
     if db_book is None:
         raise HTTPException(status_code=404, detail="Book not found")
     return db_book
+
+
+@router.get("/", response_model=List[schemas.Book])
+def list_books(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return crud.get_all_books(db, skip=skip, limit=limit)
