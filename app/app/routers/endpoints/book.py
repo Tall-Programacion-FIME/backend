@@ -49,14 +49,6 @@ async def create_book(name: str = Form(...), author: str = Form(...), price: int
     return crud.create_book(db, es, book=book, user_id=user.id)
 
 
-@router.get("/{book_id}", response_model=schemas.Book)
-def get_book(book_id: int, db: Session = Depends(get_db)):
-    db_book = crud.get_book(db, book_id=book_id)
-    if db_book is None:
-        raise HTTPException(status_code=404, detail="Book not found")
-    return db_book
-
-
 @router.get("/", response_model=List[schemas.Book])
 def list_books(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return crud.get_all_books(db, skip=skip, limit=limit)
@@ -83,6 +75,14 @@ def search_for_book(q: str, db: Session = Depends(get_db), es: Elasticsearch = D
             crud.get_book(db, book_id=book_id)
         )
     return results
+
+
+@router.get("/{book_id}", response_model=schemas.Book)
+def get_book(book_id: int, db: Session = Depends(get_db)):
+    db_book = crud.get_book(db, book_id=book_id)
+    if db_book is None:
+        raise HTTPException(status_code=404, detail="Book not found")
+    return db_book
 
 
 @router.post("/{book_id}/update", response_model=schemas.Book)
