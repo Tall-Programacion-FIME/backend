@@ -5,10 +5,17 @@ class BookBase(BaseModel):
     name: str
     author: str
     cover_url: str
+    price: int
 
 
 class BookCreate(BookBase):
     pass
+
+
+class BookUpdate(BaseModel):
+    name: str
+    author: str
+    price: str
 
 
 class Book(BookBase):
