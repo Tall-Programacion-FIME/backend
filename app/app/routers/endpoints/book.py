@@ -9,6 +9,7 @@ from app.core.storage import client as storage_client
 from app.core.utils import get_file_url
 from elasticsearch import Elasticsearch
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status
+from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
@@ -85,7 +86,7 @@ def get_book(book_id: int, db: Session = Depends(get_db)):
     return db_book
 
 
-@router.post("/{book_id}/update", response_model=schemas.Book)
+@router.post("/{book_id}", response_model=schemas.Book)
 def update_book(book_id: int, book: schemas.BookUpdate,
                 token: str = Depends(OAuth2PasswordBearer(tokenUrl="/auth/token")), authorize: AuthJWT = Depends(),
                 db: Session = Depends(get_db), es: Elasticsearch = Depends(get_es)):
@@ -97,3 +98,19 @@ def update_book(book_id: int, book: schemas.BookUpdate,
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     book_db = crud.update_book(db=db, es=es, book=book, book_id=book_id)
     return book_db
+
+
+@router.delete("/{book_id}")
+def delete_book(book_id: int, token: str = Depends(OAuth2PasswordBearer(tokenUrl="/auth/token")),
+                authorize: AuthJWT = Depends(), db: Session = Depends(get_db), es: Elasticsearch = Depends(get_es)):
+    authorize.jwt_required(token=token)
+    current_user = authorize.get_jwt_subject()
+    user = crud.get_user_by_email(db, email=current_user)
+    current_book = crud.get_book(db, book_id=book_id)
+    if user.id != current_book.owner_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    crud.delete_book(db, es, book_id=book_id)
+    return JSONResponse(
+        status_code=200,
+        content={"detail": "Book deleted"}
+    )
