@@ -5,6 +5,7 @@ class BookBase(BaseModel):
     name: str
     author: str
     cover_url: str
+    price: int
 
 
 class BookCreate(BookBase):
