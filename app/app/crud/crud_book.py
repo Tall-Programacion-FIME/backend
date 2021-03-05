@@ -20,6 +20,15 @@ def create_book(db: Session, es: Elasticsearch, book: schemas.BookCreate, user_i
     return db_book
 
 
+def update_book(db: Session, es: Elasticsearch, book: schemas.BookUpdate, book_id: int) -> schemas.Book:
+    db_book: models.Book = db.query(models.Book).filter(models.Book.id == book_id).first()
+    db_book.name = book.name
+    db_book.author = book.author
+    db_book.price = book.price
+    db.commit()
+    return db_book
+
+
 def get_book(db: Session, book_id: int) -> schemas.Book:
     return db.query(models.Book).filter(models.Book.id == book_id).first()
 

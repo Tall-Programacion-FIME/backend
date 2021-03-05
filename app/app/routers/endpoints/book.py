@@ -23,7 +23,7 @@ router = APIRouter()
 })
 async def create_book(name: str = Form(...), author: str = Form(...), price: int = Form(...),
                       cover: UploadFile = File(...),
-                      token: str = Depends(OAuth2PasswordBearer(tokenUrl="/token")),
+                      token: str = Depends(OAuth2PasswordBearer(tokenUrl="/auth/token")),
                       authorize: AuthJWT = Depends(), db: Session = Depends(get_db),
                       es: Elasticsearch = Depends(get_es)):
     authorize.jwt_required(token=token)
@@ -83,3 +83,17 @@ def search_for_book(q: str, db: Session = Depends(get_db), es: Elasticsearch = D
             crud.get_book(db, book_id=book_id)
         )
     return results
+
+
+@router.post("/{book_id}/update", response_model=schemas.Book)
+def update_book(book_id: int, book: schemas.BookUpdate,
+                token: str = Depends(OAuth2PasswordBearer(tokenUrl="/auth/token")), authorize: AuthJWT = Depends(),
+                db: Session = Depends(get_db), es: Elasticsearch = Depends(get_es)):
+    authorize.jwt_required(token=token)
+    current_user = authorize.get_jwt_subject()
+    user = crud.get_user_by_email(db, email=current_user)
+    current_book = crud.get_book(db, book_id=book_id)
+    if user.id != current_book.owner_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    book_db = crud.update_book(db=db, es=es, book=book, book_id=book_id)
+    return book_db

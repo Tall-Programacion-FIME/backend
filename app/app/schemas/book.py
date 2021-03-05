@@ -12,6 +12,12 @@ class BookCreate(BookBase):
     pass
 
 
+class BookUpdate(BaseModel):
+    name: str
+    author: str
+    price: str
+
+
 class Book(BookBase):
     id: int
     owner_id: int
