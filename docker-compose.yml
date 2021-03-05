@@ -4,6 +4,7 @@ services:
     depends_on:
       - postgres
       - minio
+      - elasticsearch
     build: .
     ports:
       - "8080:80"
