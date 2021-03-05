@@ -155,11 +155,6 @@ def test_get_book():
     assert res_json["price"] == 100
 
 
-def test_non_existent_book():
-    res = client.get(Books.base + "100000")
-    assert res.status_code == 404
-
-
 def test_list_books():
     res = client.get(Books.base)
     res_json = res.json()
@@ -194,3 +189,13 @@ def test_update_book():
     assert res_json["name"] == "Another Book"
     assert res_json["author"] == "Another author"
     assert res_json["price"] == 500
+
+
+def test_delete_book():
+    res = client.delete(Books.base + str(book_id), headers={'Authorization': f'Bearer {access_token}'})
+    assert res.status_code == 200
+
+
+def test_non_existent_book():
+    res = client.get(Books.base + str(book_id))
+    assert res.status_code == 404
