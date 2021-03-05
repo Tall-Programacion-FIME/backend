@@ -1,3 +1,4 @@
+import time
 import uuid
 
 from fastapi.testclient import TestClient
@@ -166,6 +167,7 @@ def test_list_books():
 
 
 def test_search_book():
+    time.sleep(1)  # TODO wait for elasticsearch to update document
     res = client.get(Books.search, params={'q': 'Fahrenheit'})
     res_json = res.json()
     assert res.status_code == 200
@@ -173,5 +175,22 @@ def test_search_book():
 
 
 def test_not_found_search():
-    res = client.get(Books.search, params={'q': 'Non existing book'})
+    res = client.get(Books.search, params={'q': 'Edgar Danilo'})
     assert res.status_code == 404
+
+
+def test_update_book():
+    res = client.post(
+        Books.base + str(book_id),
+        headers={'Authorization': f'Bearer {access_token}'},
+        json={
+            "name": "Another Book",
+            "author": "Another author",
+            "price": 500
+        }
+    )
+    assert res.status_code == 200
+    res_json = res.json()
+    assert res_json["name"] == "Another Book"
+    assert res_json["author"] == "Another author"
+    assert res_json["price"] == 500
