@@ -26,6 +26,21 @@ def update_book(db: Session, es: Elasticsearch, book: schemas.BookUpdate, book_i
     db_book.author = book.author
     db_book.price = book.price
     db.commit()
+    es_book = es.search(index="books", body={
+        "query": {
+            "match": {
+                "id": book_id
+            }
+        },
+        "size": 1
+    })
+    es_book_id = es_book["hits"]["hits"][0]["_id"]
+    es.update(index="books", id=es_book_id, body={
+        "doc": {
+            "name": book.name,
+            "author": book.author
+        }
+    })
     return db_book
 
 
