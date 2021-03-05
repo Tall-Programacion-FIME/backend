@@ -21,9 +21,11 @@ router = APIRouter()
 @router.post("/create", response_model=schemas.Book, responses={
     400: {"description": "File type not supported"}
 })
-async def create_book(name: str = Form(...), author: str = Form(...), cover: UploadFile = File(...),
+async def create_book(name: str = Form(...), author: str = Form(...), price: int = Form(...),
+                      cover: UploadFile = File(...),
                       token: str = Depends(OAuth2PasswordBearer(tokenUrl="/token")),
-                      authorize: AuthJWT = Depends(), db: Session = Depends(get_db), es: Elasticsearch = Depends(get_es)):
+                      authorize: AuthJWT = Depends(), db: Session = Depends(get_db),
+                      es: Elasticsearch = Depends(get_es)):
     authorize.jwt_required(token=token)
     current_user = authorize.get_jwt_subject()
     user = crud.get_user_by_email(db, email=current_user)
@@ -43,12 +45,12 @@ async def create_book(name: str = Form(...), author: str = Form(...), cover: Upl
         part_size=10 * 1024 * 1024
     )
     url = get_file_url(stored_image.object_name)
-    book = schemas.BookCreate(name=name, author=author, cover_url=url)
+    book = schemas.BookCreate(name=name, author=author, cover_url=url, price=price)
     return crud.create_book(db, es, book=book, user_id=user.id)
 
 
 @router.get("/{book_id}", response_model=schemas.Book)
-def get_book(book_id: str, db: Session = Depends(get_db)):
+def get_book(book_id: int, db: Session = Depends(get_db)):
     db_book = crud.get_book(db, book_id=book_id)
     if db_book is None:
         raise HTTPException(status_code=404, detail="Book not found")

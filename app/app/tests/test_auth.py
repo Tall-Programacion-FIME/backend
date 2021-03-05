@@ -122,7 +122,8 @@ def test_upload_book():
         files={"cover": book_cover},
         data={
             "name": "Fahrenheit 451",
-            "author": "Ray Bradbury"
+            "author": "Ray Bradbury",
+            "price": 100
         }
     )
     book_id = res.json()["id"]
@@ -137,7 +138,8 @@ def test_upload_book_with_unsupported_file_type():
         files={"cover": book_cover},
         data={
             "name": "Not an image",
-            "author": "Not an author"
+            "author": "Not an author",
+            "price": 100
         }
     )
     assert res.status_code == 400
@@ -149,6 +151,7 @@ def test_get_book():
     assert res.status_code == 200
     assert res_json["name"] == "Fahrenheit 451"
     assert res_json["author"] == "Ray Bradbury"
+    assert res_json["price"] == 100
 
 
 def test_non_existent_book():
