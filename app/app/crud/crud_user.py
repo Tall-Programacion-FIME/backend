@@ -12,6 +12,10 @@ def get_user_by_email(db: Session, email: str) -> schemas.User:
     return db.query(models.User).filter(models.User.email == email).first()
 
 
+def get_banned_user(db: Session, email: str) -> schemas.BannedUser:
+    return db.query(models.BannedUser).filter(models.BannedUser.email == email).first()
+
+
 def create_user(db: Session, user: schemas.UserCreate) -> schemas.User:
     hashed_password = passwords.get_password_hash(user.password)
     db_user = models.User(email=user.email, name=user.name, hashed_password=hashed_password)
@@ -25,6 +29,15 @@ def delete_user(db: Session, user_id: int):
     user = get_user(db, user_id=user_id)
     db.delete(user)
     db.commit()
+
+
+def ban_user(db: Session, user_email: str):
+    user = get_user_by_email(db, email=user_email)
+    delete_user(db, user_id=user.id)
+    db_banned_user = models.BannedUser(email=user_email)
+    db.add(db_banned_user)
+    db.commit()
+    db.refresh(db_banned_user)
 
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):

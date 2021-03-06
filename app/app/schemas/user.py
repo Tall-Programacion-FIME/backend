@@ -27,3 +27,11 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+
+
+class BannedUser(BaseModel):
+    id: int
+    email: str
+
+    class Config:
+        orm_mode = True
