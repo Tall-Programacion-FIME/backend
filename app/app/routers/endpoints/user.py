@@ -4,6 +4,7 @@ import app.crud as crud
 import app.schemas as schemas
 from app.core import utils
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from ...dependencies import get_db, get_current_user, get_current_admin
@@ -42,3 +43,10 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     if db_user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return db_user
+
+
+@router.delete("/{user_id}/ban")
+def ban_user(user_id: int, db: Session = Depends(get_db), admin: schemas.User = Depends(get_current_admin)):
+    user = crud.get_user(db, user_id=user_id)
+    crud.delete_user(db, user_id=user_id)
+    return JSONResponse(status_code=200, content={"detail": "User banned"})
