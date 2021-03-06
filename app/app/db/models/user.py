@@ -14,3 +14,10 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
 
     books_for_sale = relationship("Book", back_populates="owner")
+
+
+class BannedUser(Base):
+    __tablename__ = "banned_users"
+
+    id = Column(Integer, primary_key=True)
+    email = Column(String, unique=True, index=True)
