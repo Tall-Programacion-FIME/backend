@@ -22,6 +22,7 @@ class UserToken(BaseModel):
 class User(UserBase):
     id: int
     is_active: bool
+    is_admin: bool
     books_for_sale: List[Book]
 
     class Config:

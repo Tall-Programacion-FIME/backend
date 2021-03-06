@@ -95,7 +95,7 @@ def update_book(book_id: int, book: schemas.BookUpdate, es: Elasticsearch = Depe
 def delete_book(book_id: int, user: schemas.User = Depends(get_current_user),
                 db: Session = Depends(get_db), es: Elasticsearch = Depends(get_es)):
     current_book = crud.get_book(db, book_id=book_id)
-    if user.id != current_book.owner_id:
+    if user.id != current_book.owner_id and not user.is_admin:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     crud.delete_book(db, es, book_id=book_id)
     return JSONResponse(
