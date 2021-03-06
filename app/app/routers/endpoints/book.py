@@ -10,11 +10,9 @@ from app.core.utils import get_file_url
 from elasticsearch import Elasticsearch
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status
 from fastapi.responses import JSONResponse
-from fastapi.security import OAuth2PasswordBearer
-from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
-from ...dependencies import get_db, get_es
+from ...dependencies import get_db, get_es, get_current_user
 
 router = APIRouter()
 
@@ -24,12 +22,9 @@ router = APIRouter()
 })
 async def create_book(name: str = Form(...), author: str = Form(...), price: int = Form(...),
                       cover: UploadFile = File(...),
-                      token: str = Depends(OAuth2PasswordBearer(tokenUrl="/auth/token")),
-                      authorize: AuthJWT = Depends(), db: Session = Depends(get_db),
+                      user: schemas.User = Depends(get_current_user),
+                      db: Session = Depends(get_db),
                       es: Elasticsearch = Depends(get_es)):
-    authorize.jwt_required(token=token)
-    current_user = authorize.get_jwt_subject()
-    user = crud.get_user_by_email(db, email=current_user)
     _, file_extension = path.splitext(cover.filename)
     if file_extension not in ['.jpeg', '.jpg', '.png']:
         raise HTTPException(
@@ -87,12 +82,8 @@ def get_book(book_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/{book_id}", response_model=schemas.Book)
-def update_book(book_id: int, book: schemas.BookUpdate,
-                token: str = Depends(OAuth2PasswordBearer(tokenUrl="/auth/token")), authorize: AuthJWT = Depends(),
-                db: Session = Depends(get_db), es: Elasticsearch = Depends(get_es)):
-    authorize.jwt_required(token=token)
-    current_user = authorize.get_jwt_subject()
-    user = crud.get_user_by_email(db, email=current_user)
+def update_book(book_id: int, book: schemas.BookUpdate, es: Elasticsearch = Depends(get_es),
+                db: Session = Depends(get_db), user: schemas.User = Depends(get_current_user)):
     current_book = crud.get_book(db, book_id=book_id)
     if user.id != current_book.owner_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
@@ -101,11 +92,8 @@ def update_book(book_id: int, book: schemas.BookUpdate,
 
 
 @router.delete("/{book_id}")
-def delete_book(book_id: int, token: str = Depends(OAuth2PasswordBearer(tokenUrl="/auth/token")),
-                authorize: AuthJWT = Depends(), db: Session = Depends(get_db), es: Elasticsearch = Depends(get_es)):
-    authorize.jwt_required(token=token)
-    current_user = authorize.get_jwt_subject()
-    user = crud.get_user_by_email(db, email=current_user)
+def delete_book(book_id: int, user: schemas.User = Depends(get_current_user),
+                db: Session = Depends(get_db), es: Elasticsearch = Depends(get_es)):
     current_book = crud.get_book(db, book_id=book_id)
     if user.id != current_book.owner_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)

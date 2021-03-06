@@ -2,11 +2,9 @@ import app.crud as crud
 import app.schemas as schemas
 from app.core import utils
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
-from ...dependencies import get_db
+from ...dependencies import get_db, get_current_user
 
 router = APIRouter()
 
@@ -25,11 +23,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/me", response_model=schemas.User)
-def read_users_me(token: str = Depends(OAuth2PasswordBearer(tokenUrl="/token")),
-                  authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
-    authorize.jwt_required(token=token)
-    current_user = authorize.get_jwt_subject()
-    user = crud.get_user_by_email(db, email=current_user)
+def read_users_me(user=Depends(get_current_user)):
     return user
 
 

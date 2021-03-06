@@ -15,7 +15,7 @@ class BookCreate(BookBase):
 class BookUpdate(BaseModel):
     name: str
     author: str
-    price: str
+    price: int
 
 
 class Book(BookBase):
