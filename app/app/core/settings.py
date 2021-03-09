@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic import BaseSettings, Field
 
 
@@ -17,6 +19,7 @@ class __Settings(BaseSettings):
     BUCKET_NAME: str = "book-covers-uanl"
     REGION: str = "us-east-1"
     ELASTICSEARCH_URL: str
+    ORIGINS: List[str] = []
 
 
 _settings = __Settings()
@@ -25,5 +28,15 @@ _settings.docs_config = {
     'docs_url': set_url(__Settings().ENVIRONMENT, '/docs'),
     'redoc_url': set_url(__Settings().ENVIRONMENT, '/redoc')
 }
+
+if _settings.ENVIRONMENT == "PRODUCTION":
+    _settings.ORIGINS = [
+        'https://fime-shop.web.app'
+    ]
+else:
+    _settings.ORIGINS = [
+        'http://localhost',
+        'http://localhost:3000',
+    ]
 
 settings: __Settings = _settings
