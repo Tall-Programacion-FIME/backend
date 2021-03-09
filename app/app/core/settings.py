@@ -31,12 +31,11 @@ _settings.docs_config = {
 
 if _settings.ENVIRONMENT == "PRODUCTION":
     _settings.ORIGINS = [
-        'https://fime-shop.web.app'
+        '*'
     ]
 else:
     _settings.ORIGINS = [
-        'http://localhost',
-        'http://localhost:3000',
+        '*',
     ]
 
 settings: __Settings = _settings
