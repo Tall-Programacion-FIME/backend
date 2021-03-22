@@ -92,7 +92,8 @@ def test_user_page():
         'name': name,
         'id': user_id,
         'books_for_sale': [],
-        'is_active': True
+        'is_active': True,
+        'is_admin': False
     }
 
 
