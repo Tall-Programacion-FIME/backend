@@ -3,7 +3,9 @@ from typing import List
 import app.crud as crud
 import app.schemas as schemas
 from app.core import utils
-from fastapi import APIRouter, Depends, HTTPException, status
+from app.dependencies import get_es
+from elasticsearch import Elasticsearch
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -49,7 +51,8 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/{user_id}/ban")
-def ban_user(user_id: int, db: Session = Depends(get_db), admin: schemas.User = Depends(get_current_admin)):
+def ban_user(background_tasks: BackgroundTasks, user_id: int, db: Session = Depends(get_db),
+             es: Elasticsearch = Depends(get_es), admin: schemas.User = Depends(get_current_admin)):
     user = crud.get_user(db, user_id=user_id)
-    crud.ban_user(db, user_email=user.email)
+    crud.ban_user(background_tasks=background_tasks, db=db, es=es, user_email=user.email)
     return JSONResponse(status_code=200, content={"detail": "User banned"})

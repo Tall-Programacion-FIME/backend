@@ -50,6 +50,11 @@ def delete_book(background_tasks: BackgroundTasks, db: Session, es: Elasticsearc
     db.commit()
 
 
+def delete_user_books(background_tasks: BackgroundTasks, db: Session, es: Elasticsearch, books: List[schemas.Book]):
+    for book in books:
+        background_tasks.add_task(delete_book, background_tasks=background_tasks, db=db, es=es, book_id=book.id)
+
+
 def get_book(db: Session, book_id: int) -> schemas.Book:
     return db.query(models.Book).filter(models.Book.id == book_id).first()
 
