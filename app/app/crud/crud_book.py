@@ -5,6 +5,7 @@ from app.core.settings import settings
 from app.core.storage import client as storage_client
 from app.db import models
 from elasticsearch import Elasticsearch
+from fastapi import BackgroundTasks
 from sqlalchemy.orm import Session
 
 
@@ -38,13 +39,13 @@ def update_book(db: Session, es: Elasticsearch, book: schemas.BookUpdate, book_i
     return db_book
 
 
-def delete_book(db: Session, es: Elasticsearch, book_id: int):
+def delete_book(background_tasks: BackgroundTasks, db: Session, es: Elasticsearch, book_id: int):
     db_book: models.Book = db.query(models.Book).filter(models.Book.id == book_id).first()
     es_book_id = get_book_elastic_id(es, book_id)
     s3_url = db_book.cover_url
     s3_name = s3_url.split("/")[-1]
-    storage_client.remove_object(settings.BUCKET_NAME, s3_name)
-    es.delete(index="books", id=es_book_id)
+    background_tasks.add_task(storage_client.remove_object, settings.BUCKET_NAME, s3_name)
+    background_tasks.add_task(es.delete, index="books", id=es_book_id)
     db.delete(db_book)
     db.commit()
 

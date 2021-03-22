@@ -8,7 +8,7 @@ from app.core.settings import settings
 from app.core.storage import client as storage_client
 from app.core.utils import get_file_url
 from elasticsearch import Elasticsearch
-from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status
+from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status, BackgroundTasks
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -92,12 +92,12 @@ def update_book(book_id: int, book: schemas.BookUpdate, es: Elasticsearch = Depe
 
 
 @router.delete("/{book_id}")
-def delete_book(book_id: int, user: schemas.User = Depends(get_current_user),
+def delete_book(background_tasks: BackgroundTasks, book_id: int, user: schemas.User = Depends(get_current_user),
                 db: Session = Depends(get_db), es: Elasticsearch = Depends(get_es)):
     current_book = crud.get_book(db, book_id=book_id)
     if user.id != current_book.owner_id and not user.is_admin:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    crud.delete_book(db, es, book_id=book_id)
+    crud.delete_book(background_tasks, db, es, book_id=book_id)
     return JSONResponse(
         status_code=200,
         content={"detail": "Book deleted"}
