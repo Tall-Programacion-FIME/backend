@@ -23,11 +23,11 @@ class __Settings(BaseSettings):
 
 
 _settings = __Settings()
-_settings.docs_config = {
-    'openapi_url': set_url(__Settings().ENVIRONMENT, '/openapi.json'),
-    'docs_url': set_url(__Settings().ENVIRONMENT, '/docs'),
-    'redoc_url': set_url(__Settings().ENVIRONMENT, '/redoc')
-}
+# _settings.docs_config = {
+#     'openapi_url': set_url(__Settings().ENVIRONMENT, '/openapi.json'),
+#     'docs_url': set_url(__Settings().ENVIRONMENT, '/docs'),
+#     'redoc_url': set_url(__Settings().ENVIRONMENT, '/redoc')
+# }
 
 if _settings.ENVIRONMENT == "PRODUCTION":
     _settings.ORIGINS = [
