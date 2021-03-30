@@ -13,7 +13,7 @@ def get_config():
     return settings
 
 
-app = FastAPI(**settings.docs_config)
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
