@@ -16,7 +16,7 @@ class __Settings(BaseSettings):
     docs_config: dict = None
     AWS_ACCESS_KEY: str
     AWS_SECRET_KEY: str
-    BUCKET_NAME: str = "book-covers-uanl"
+    BUCKET_NAME: str = "book-covers-fime"
     REGION: str = "us-east-1"
     ELASTICSEARCH_URL: str
     ORIGINS: List[str] = []
