@@ -11,7 +11,10 @@ from elasticsearch import Elasticsearch
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status, BackgroundTasks
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
+from fastapi_pagination import Page, PaginationParams, add_pagination
+from fastapi_pagination.ext.sqlalchemy import paginate
 
+from app.db import models
 from ...dependencies import get_db, get_es, get_current_user
 
 router = APIRouter()
@@ -45,9 +48,9 @@ async def create_book(name: str = Form(...), author: str = Form(...), price: int
     return crud.create_book(db, es, book=book, user_id=user.id)
 
 
-@router.get("/", response_model=List[schemas.Book])
-def list_books(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return crud.get_all_books(db, skip=skip, limit=limit)
+@router.get("/", response_model=Page[schemas.Book])
+def list_books(db: Session = Depends(get_db), params: PaginationParams = Depends()):
+    return paginate(db.query(models.Book), params)
 
 
 @router.get("/search/", response_model=List[schemas.Book])
