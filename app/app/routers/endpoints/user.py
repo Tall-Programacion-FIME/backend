@@ -22,18 +22,17 @@ def list_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db),
 
 
 @router.post("/", response_model=schemas.User, responses={
-    403: {"description": "Not a valid email domain"},
-    400: {"description": "Email already registered"}
+    400: {"description": "Registration error"}
 })
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if not utils.is_valid_email_domain(user.email):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not a valid email domain")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Correo invalido.")
     db_user = crud.get_user_by_email(db, email=user.email)
     banned_user = crud.get_banned_user(db, email=user.email)
     if banned_user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You have been banned")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Has sido baneado.")
     if db_user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Ya existe una cuenta con ese correo.")
     return crud.create_user(db=db, user=user)
 
 
