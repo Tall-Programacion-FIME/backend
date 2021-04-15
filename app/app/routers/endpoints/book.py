@@ -50,7 +50,7 @@ async def create_book(name: str = Form(...), author: str = Form(...), price: int
 
 @router.get("/", response_model=Page[schemas.Book])
 def list_books(db: Session = Depends(get_db), params: PaginationParams = Depends()):
-    return paginate(db.query(models.Book), params)
+    return paginate(db.query(models.Book).order_by(models.Book.id.desc()), params)
 
 
 @router.get("/search/", response_model=List[schemas.Book])
