@@ -1,4 +1,5 @@
 from os import path
+from tempfile import TemporaryFile
 from typing import List
 from uuid import uuid4
 
@@ -13,12 +14,13 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from fastapi_pagination import Page, PaginationParams, add_pagination
 from fastapi_pagination.ext.sqlalchemy import paginate
+from io import BytesIO
+from PIL import Image
 
 from app.db import models
 from ...dependencies import get_db, get_es, get_current_user
 
 router = APIRouter()
-
 
 @router.post("/create", response_model=schemas.Book, responses={
     400: {"description": "File type not supported"}
@@ -35,10 +37,20 @@ async def create_book(name: str = Form(...), author: str = Form(...), price: int
             detail="File type not supported"
         )
     new_file_name = uuid4().hex + file_extension
+
+    a = TemporaryFile()
+    file_extension = file_extension.strip(".")
+    if file_extension == "jpg":
+        file_extension = "jpeg"
+    resizing_image = Image.open(cover.file)
+    resizing_image = resizing_image.resize((288, 400), Image.ANTIALIAS)
+    resizing_image.save(a, format=file_extension, quality=95)
+    a.seek(0)
+
     stored_image = storage_client.put_object(
         bucket_name=settings.BUCKET_NAME,
         object_name=new_file_name,
-        data=cover.file,
+        data=a,
         length=-1,
         content_type=cover.content_type,
         part_size=10 * 1024 * 1024
