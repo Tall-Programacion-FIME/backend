@@ -9,5 +9,5 @@ client = Minio(
     access_key=settings.AWS_ACCESS_KEY,
     secret_key=settings.AWS_SECRET_KEY,
     secure=IS_PRODUCTION,
-    region=settings.REGION if IS_PRODUCTION else None
+    region=settings.REGION if IS_PRODUCTION else None,
 )

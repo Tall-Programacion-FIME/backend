@@ -9,7 +9,16 @@ from app.core.settings import settings
 from app.core.storage import client as storage_client
 from app.core.utils import get_file_url
 from elasticsearch import Elasticsearch
-from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status, BackgroundTasks
+from fastapi import (
+    APIRouter,
+    Depends,
+    UploadFile,
+    File,
+    Form,
+    HTTPException,
+    status,
+    BackgroundTasks,
+)
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from fastapi_pagination import Page, PaginationParams, add_pagination
@@ -22,19 +31,25 @@ from ...dependencies import get_db, get_es, get_current_user
 
 router = APIRouter()
 
-@router.post("/create", response_model=schemas.Book, responses={
-    400: {"description": "File type not supported"}
-})
-async def create_book(name: str = Form(...), author: str = Form(...), price: int = Form(...),
-                      cover: UploadFile = File(...),
-                      user: schemas.User = Depends(get_current_user),
-                      db: Session = Depends(get_db),
-                      es: Elasticsearch = Depends(get_es)):
+
+@router.post(
+    "/create",
+    response_model=schemas.Book,
+    responses={400: {"description": "File type not supported"}},
+)
+async def create_book(
+    name: str = Form(...),
+    author: str = Form(...),
+    price: int = Form(...),
+    cover: UploadFile = File(...),
+    user: schemas.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    es: Elasticsearch = Depends(get_es),
+):
     _, file_extension = path.splitext(cover.filename)
-    if file_extension not in ['.jpeg', '.jpg', '.png']:
+    if file_extension not in [".jpeg", ".jpg", ".png"]:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="File type not supported"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="File type not supported"
         )
     new_file_name = uuid4().hex + file_extension
 
@@ -53,7 +68,7 @@ async def create_book(name: str = Form(...), author: str = Form(...), price: int
         data=a,
         length=-1,
         content_type=cover.content_type,
-        part_size=10 * 1024 * 1024
+        part_size=10 * 1024 * 1024,
     )
     url = get_file_url(stored_image.object_name)
     book = schemas.BookCreate(name=name, author=author, cover_url=url, price=price)
@@ -66,25 +81,20 @@ def list_books(db: Session = Depends(get_db), params: PaginationParams = Depends
 
 
 @router.get("/search/", response_model=List[schemas.Book])
-def search_for_book(q: str, db: Session = Depends(get_db), es: Elasticsearch = Depends(get_es)):
-    query = {
-        "query": {
-            "multi_match": {
-                "query": f"{q}",
-                "fields": ["name", "author"]
-            }
-        }
-    }
+def search_for_book(
+    q: str, db: Session = Depends(get_db), es: Elasticsearch = Depends(get_es)
+):
+    query = {"query": {"multi_match": {"query": f"{q}", "fields": ["name", "author"]}}}
     res = es.search(body=query, index="books")
     queried_books = res["hits"]["hits"]
     if len(queried_books) == 0:
-        raise HTTPException(status_code=404, detail="No books found matching your query")
+        raise HTTPException(
+            status_code=404, detail="No books found matching your query"
+        )
     results: List[schemas.Book] = []
     for book in queried_books:
         book_id = book["_source"]["id"]
-        results.append(
-            crud.get_book(db, book_id=book_id)
-        )
+        results.append(crud.get_book(db, book_id=book_id))
     return results
 
 
@@ -97,8 +107,13 @@ def get_book(book_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/{book_id}", response_model=schemas.Book)
-def update_book(book_id: int, book: schemas.BookUpdate, es: Elasticsearch = Depends(get_es),
-                db: Session = Depends(get_db), user: schemas.User = Depends(get_current_user)):
+def update_book(
+    book_id: int,
+    book: schemas.BookUpdate,
+    es: Elasticsearch = Depends(get_es),
+    db: Session = Depends(get_db),
+    user: schemas.User = Depends(get_current_user),
+):
     current_book = crud.get_book(db, book_id=book_id)
     if user.id != current_book.owner_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
@@ -107,13 +122,15 @@ def update_book(book_id: int, book: schemas.BookUpdate, es: Elasticsearch = Depe
 
 
 @router.delete("/{book_id}")
-def delete_book(background_tasks: BackgroundTasks, book_id: int, user: schemas.User = Depends(get_current_user),
-                db: Session = Depends(get_db), es: Elasticsearch = Depends(get_es)):
+def delete_book(
+    background_tasks: BackgroundTasks,
+    book_id: int,
+    user: schemas.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    es: Elasticsearch = Depends(get_es),
+):
     current_book = crud.get_book(db, book_id=book_id)
     if user.id != current_book.owner_id and not user.is_admin:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     crud.delete_book(background_tasks, db, es, book_id=book_id)
-    return JSONResponse(
-        status_code=200,
-        content={"detail": "Book deleted"}
-    )
+    return JSONResponse(status_code=200, content={"detail": "Book deleted"})
