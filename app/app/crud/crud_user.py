@@ -21,22 +21,34 @@ def get_banned_user(db: Session, email: str) -> schemas.BannedUser:
 
 def create_user(db: Session, user: schemas.UserCreate) -> schemas.User:
     hashed_password = passwords.get_password_hash(user.password)
-    db_user = models.User(email=user.email, name=user.name, hashed_password=hashed_password)
+    db_user = models.User(
+        email=user.email, name=user.name, hashed_password=hashed_password
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
 
 
-def delete_user(background_tasks: BackgroundTasks, db: Session, es: Elasticsearch, user_id: int):
+def delete_user(
+    background_tasks: BackgroundTasks, db: Session, es: Elasticsearch, user_id: int
+):
     user = get_user(db, user_id=user_id)
     user_books = user.books_for_sale
-    background_tasks.add_task(delete_user_books, background_tasks=background_tasks, db=db, es=es, books=user_books)
+    background_tasks.add_task(
+        delete_user_books,
+        background_tasks=background_tasks,
+        db=db,
+        es=es,
+        books=user_books,
+    )
     db.delete(user)
     db.commit()
 
 
-def ban_user(background_tasks: BackgroundTasks, db: Session, es: Elasticsearch, user_email: str):
+def ban_user(
+    background_tasks: BackgroundTasks, db: Session, es: Elasticsearch, user_email: str
+):
     user = get_user_by_email(db, email=user_email)
     delete_user(background_tasks, db, es, user_id=user.id)
     db_banned_user = models.BannedUser(email=user_email)

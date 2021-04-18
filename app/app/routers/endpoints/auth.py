@@ -9,13 +9,16 @@ from sqlalchemy.orm import Session
 router = APIRouter()
 
 
-@router.post("/token", response_model=schemas.Token, responses={
-    401: {
-        "description": "Incorrect username or password"
-    }
-})
-async def login_for_access_token(user: schemas.UserToken, authorize: AuthJWT = Depends(),
-                                 db: Session = Depends(get_db)):
+@router.post(
+    "/token",
+    response_model=schemas.Token,
+    responses={401: {"description": "Incorrect username or password"}},
+)
+async def login_for_access_token(
+    user: schemas.UserToken,
+    authorize: AuthJWT = Depends(),
+    db: Session = Depends(get_db),
+):
     """
     Obtener un token de autorización y un token de actualización
     """
@@ -24,7 +27,7 @@ async def login_for_access_token(user: schemas.UserToken, authorize: AuthJWT = D
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"}
+            headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = authorize.create_access_token(subject=user.email)
     refresh_token = authorize.create_refresh_token(subject=user.email)

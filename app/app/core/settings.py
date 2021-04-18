@@ -30,12 +30,10 @@ _settings = __Settings()
 # }
 
 if _settings.ENVIRONMENT == "PRODUCTION":
-    _settings.ORIGINS = [
-        '*'
-    ]
+    _settings.ORIGINS = ["*"]
 else:
     _settings.ORIGINS = [
-        '*',
+        "*",
     ]
 
 settings: __Settings = _settings
