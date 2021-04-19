@@ -23,7 +23,6 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from fastapi_pagination import Page, PaginationParams, add_pagination
 from fastapi_pagination.ext.sqlalchemy import paginate
-from io import BytesIO
 from PIL import Image
 
 from app.db import models
@@ -58,7 +57,7 @@ async def create_book(
     if file_extension == "jpg":
         file_extension = "jpeg"
     resizing_image = Image.open(cover.file)
-    resizing_image = resizing_image.resize((288, 400), Image.ANTIALIAS)
+    resizing_image = resizing_image.resize((656, 912), Image.ANTIALIAS)
     resizing_image.save(a, format=file_extension, quality=95)
     a.seek(0)
 
