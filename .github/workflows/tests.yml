@@ -17,4 +17,4 @@ jobs:
         with:
           time: '60s'
       - name: Test
-        run: docker-compose logs api && docker-compose exec -T api pytest --cov=app
+        run: docker-compose exec -T api pytest --cov=app
