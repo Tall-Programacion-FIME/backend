@@ -90,3 +90,14 @@ def ban_user(
         background_tasks=background_tasks, db=db, es=es, user_email=user.email
     )
     return JSONResponse(status_code=200, content={"detail": "User banned"})
+
+
+@router.get("/verify/{token}")
+def verify_email(token: str, db: Session = Depends(get_db)):
+    token = VerificationToken(**jwt.decode(token, settings.authjwt_secret_key))
+    print(token.user_id)
+    user = crud.get_user(db, token.user_id)
+    if not user:
+        raise HTTPException(status_code=404)
+    crud.activate_user(db, user)
+    return JSONResponse(status_code=200, content={"detail": "Cuenta activada"})

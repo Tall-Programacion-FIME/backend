@@ -60,3 +60,8 @@ def ban_user(
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()
+
+
+def activate_user(db: Session, user: schemas.User):
+    user.is_active = True
+    db.commit()
