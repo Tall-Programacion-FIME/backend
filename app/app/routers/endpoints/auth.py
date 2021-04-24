@@ -1,8 +1,7 @@
 import app.schemas as schemas
 from app.core.security import authenticate_user
 from app.dependencies import get_db
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi import status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 

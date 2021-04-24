@@ -8,25 +8,25 @@ import app.schemas as schemas
 from app.core.settings import settings
 from app.core.storage import s3 as storage_client
 from app.core.utils import get_file_url
+from app.db import models
 from elasticsearch import Elasticsearch
 from fastapi import (
     APIRouter,
+    BackgroundTasks,
     Depends,
-    UploadFile,
     File,
     Form,
     HTTPException,
+    UploadFile,
     status,
-    BackgroundTasks,
 )
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
 from fastapi_pagination import Page, PaginationParams, add_pagination
 from fastapi_pagination.ext.sqlalchemy import paginate
 from PIL import Image
+from sqlalchemy.orm import Session
 
-from app.db import models
-from ...dependencies import get_db, get_es, get_current_user
+from ...dependencies import get_current_user, get_db, get_es
 
 router = APIRouter()
 

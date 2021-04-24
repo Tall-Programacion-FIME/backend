@@ -1,15 +1,20 @@
+import datetime
 from typing import List
 
 import app.crud as crud
 import app.schemas as schemas
+import jwt
 from app.core import utils
+from app.core.settings import settings
 from app.dependencies import get_es
 from elasticsearch import Elasticsearch
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
-from ...dependencies import get_db, get_current_user, get_current_admin
+from ...core.utils import send_verification_email
+from ...dependencies import get_current_admin, get_current_user, get_db
+from ...schemas import VerificationToken
 
 router = APIRouter()
 
@@ -33,7 +38,7 @@ def list_users(
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if not utils.is_valid_email_domain(user.email):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Correo invalido."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Correo invalido"
         )
     db_user = crud.get_user_by_email(db, email=user.email)
     banned_user = crud.get_banned_user(db, email=user.email)
@@ -44,9 +49,17 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Ya existe una cuenta con ese correo.",
+            detail="Ya existe una cuenta con ese correo",
         )
-    return crud.create_user(db=db, user=user)
+
+    created_user = crud.create_user(db=db, user=user)
+    token_data = VerificationToken(
+        user_id=created_user.id,
+        exp=datetime.datetime.utcnow() + datetime.timedelta(weeks=4),
+    )
+    token = jwt.encode(token_data.dict(), settings.authjwt_secret_key)
+    send_verification_email(token)
+    return created_user
 
 
 @router.get("/me", response_model=schemas.User)

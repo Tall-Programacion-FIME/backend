@@ -12,3 +12,7 @@ def get_file_url(filename: str) -> str:
         return f"https://cdn.uanl.store/{filename}"  # pragma: no cover
     elif settings.ENVIRONMENT == "DEVELOPMENT":
         return f"http://localhost:9000/{settings.BUCKET_NAME}/{filename}"
+
+
+def send_verification_email(verification_token: bytes):
+    print(verification_token)

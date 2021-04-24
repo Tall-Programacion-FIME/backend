@@ -1,12 +1,11 @@
 import random
 
-from sqlalchemy.orm import Session
+from app.crud.crud_book import create_book
+from app.schemas.book import BookCreate
+from app.tests.utils.user import create_random_user
 from elasticsearch import Elasticsearch
 from faker import Faker
-
-from app.tests.utils.user import create_random_user
-from app.schemas.book import BookCreate
-from app.crud.crud_book import create_book
+from sqlalchemy.orm import Session
 
 
 def test_create_book(db: Session, es: Elasticsearch, fake: Faker) -> None:
