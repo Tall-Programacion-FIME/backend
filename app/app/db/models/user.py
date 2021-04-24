@@ -10,7 +10,7 @@ class User(Base):
     name = Column(String)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
-    is_active = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
 
     books_for_sale = relationship("Book", back_populates="owner")

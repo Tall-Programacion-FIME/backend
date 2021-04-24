@@ -29,6 +29,12 @@ async def login_for_access_token(
             detail="Correo o contraseña incorrecta",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No se ha activado la cuenta, por favor revisa tu correo.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     access_token = authorize.create_access_token(subject=user.email)
     refresh_token = authorize.create_refresh_token(subject=user.email)
     return {"access_token": access_token, "refresh_token": refresh_token}
