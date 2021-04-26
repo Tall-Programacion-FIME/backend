@@ -1,12 +1,11 @@
 from typing import Generator
 
 import pytest
-from faker import Faker
-from fastapi.testclient import TestClient
-
 from app.db import SessionLocal
 from app.db import es as elastic
 from app.main import app
+from faker import Faker
+from fastapi.testclient import TestClient
 
 
 @pytest.fixture(scope="session")

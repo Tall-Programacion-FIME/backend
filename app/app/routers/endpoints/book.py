@@ -6,27 +6,27 @@ from uuid import uuid4
 import app.crud as crud
 import app.schemas as schemas
 from app.core.settings import settings
-from app.core.storage import client as storage_client
+from app.core.storage import s3 as storage_client
 from app.core.utils import get_file_url
+from app.db import models
 from elasticsearch import Elasticsearch
 from fastapi import (
     APIRouter,
+    BackgroundTasks,
     Depends,
-    UploadFile,
     File,
     Form,
     HTTPException,
+    UploadFile,
     status,
-    BackgroundTasks,
 )
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
 from fastapi_pagination import Page, PaginationParams, add_pagination
 from fastapi_pagination.ext.sqlalchemy import paginate
 from PIL import Image
+from sqlalchemy.orm import Session
 
-from app.db import models
-from ...dependencies import get_db, get_es, get_current_user
+from ...dependencies import get_current_user, get_db, get_es
 
 router = APIRouter()
 
@@ -61,15 +61,14 @@ async def create_book(
     resizing_image.save(a, format=file_extension, quality=95)
     a.seek(0)
 
-    stored_image = storage_client.put_object(
-        bucket_name=settings.BUCKET_NAME,
-        object_name=new_file_name,
-        data=a,
-        length=-1,
-        content_type=cover.content_type,
-        part_size=10 * 1024 * 1024,
+    storage_client.put_object(
+        Bucket=settings.BUCKET_NAME,
+        Key=new_file_name,
+        Body=a,
+        ContentType=cover.content_type,
+        ACL="public-read",
     )
-    url = get_file_url(stored_image.object_name)
+    url = get_file_url(new_file_name)
     book = schemas.BookCreate(name=name, author=author, cover_url=url, price=price)
     return crud.create_book(db, es, book=book, user_id=user.id)
 

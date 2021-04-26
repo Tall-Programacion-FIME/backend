@@ -2,7 +2,7 @@ from typing import List
 
 import app.schemas as schemas
 from app.core.settings import settings
-from app.core.storage import client as storage_client
+from app.core.storage import s3 as storage_client
 from app.db import models
 from elasticsearch import Elasticsearch
 from fastapi import BackgroundTasks
@@ -54,7 +54,7 @@ def delete_book(
     s3_url = db_book.cover_url
     s3_name = s3_url.split("/")[-1]
     background_tasks.add_task(
-        storage_client.remove_object, settings.BUCKET_NAME, s3_name
+        storage_client.delete_object, Bucket=settings.BUCKET_NAME, Key=s3_name
     )
     background_tasks.add_task(es.delete, index="books", id=es_book_id)
     db.delete(db_book)

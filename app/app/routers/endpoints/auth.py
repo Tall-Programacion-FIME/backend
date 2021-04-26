@@ -1,8 +1,7 @@
 import app.schemas as schemas
 from app.core.security import authenticate_user
 from app.dependencies import get_db
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi import status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
@@ -26,7 +25,13 @@ async def login_for_access_token(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Correo o contraseña incorrecta",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No se ha activado la cuenta, por favor revisa tu correo.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = authorize.create_access_token(subject=user.email)

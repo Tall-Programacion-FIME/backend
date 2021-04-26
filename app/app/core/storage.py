@@ -1,13 +1,15 @@
-from minio import Minio
+import boto3
+from botocore.client import Config
 
 from .settings import settings
 
 IS_PRODUCTION = True if settings.ENVIRONMENT == "PRODUCTION" else False
 
-client = Minio(
-    endpoint="s3.amazonaws.com" if IS_PRODUCTION else "minio:9000",
-    access_key=settings.AWS_ACCESS_KEY,
-    secret_key=settings.AWS_SECRET_KEY,
-    secure=IS_PRODUCTION,
-    region=settings.REGION if IS_PRODUCTION else None,
+s3 = boto3.client(
+    "s3",
+    aws_access_key_id=settings.AWS_ACCESS_KEY,
+    aws_secret_access_key=settings.AWS_SECRET_KEY,
+    endpoint_url="https://s3.amazonaws.com" if IS_PRODUCTION else "http://minio:9000",
+    config=Config(signature_version="s3v4"),
+    region_name="us-east-1",
 )

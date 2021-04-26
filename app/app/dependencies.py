@@ -3,8 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
-from . import crud
-from . import schemas
+from . import crud, schemas
 from .db import SessionLocal, es
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/token")
