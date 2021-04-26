@@ -58,7 +58,9 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         exp=datetime.datetime.utcnow() + datetime.timedelta(weeks=4),
     )
     token = jwt.encode(token_data.dict(), settings.authjwt_secret_key)
-    send_verification_email(token)
+    send_verification_email(
+        verification_token=token, email_address=user.email, name=user.name
+    )
     return created_user
 
 
