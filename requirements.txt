@@ -16,5 +16,5 @@ minio==7.0.3
 elasticsearch==7.12.0
 tenacity==7.0.0
 Faker==6.6.2
-fastapi-pagination==0.7.0
+fastapi-pagination==0.7.1
 Pillow==8.2.0
