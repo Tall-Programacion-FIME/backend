@@ -8,9 +8,7 @@ from fastapi import BackgroundTasks
 from sqlalchemy.orm import Session
 
 
-def create_book(
-    db: Session,  book: schemas.BookCreate, user_id: int
-) -> schemas.Book:
+def create_book(db: Session, book: schemas.BookCreate, user_id: int) -> schemas.Book:
     db_book = models.Book(**book.dict(), owner_id=user_id)
     db.add(db_book)
     db.commit()
@@ -18,9 +16,7 @@ def create_book(
     return db_book
 
 
-def update_book(
-    db: Session, book: schemas.BookUpdate, book_id: int
-) -> schemas.Book:
+def update_book(db: Session, book: schemas.BookUpdate, book_id: int) -> schemas.Book:
     db_book: models.Book = (
         db.query(models.Book).filter(models.Book.id == book_id).first()
     )
@@ -31,9 +27,7 @@ def update_book(
     return db_book
 
 
-def delete_book(
-    db: Session,  book_id: int
-):
+def delete_book(db: Session, book_id: int):
     db_book: models.Book = (
         db.query(models.Book).filter(models.Book.id == book_id).first()
     )
@@ -63,4 +57,3 @@ def get_book(db: Session, book_id: int) -> schemas.Book:
 
 def get_all_books(db: Session, skip: int = 0, limit: int = 100) -> List[schemas.Book]:
     return db.query(models.Book).offset(skip).limit(limit).all()
-

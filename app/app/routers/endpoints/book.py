@@ -76,7 +76,6 @@ def list_books(db: Session = Depends(get_db), params: PaginationParams = Depends
     return paginate(db.query(models.Book).order_by(models.Book.id.desc()), params)
 
 
-
 @router.get("/{book_id}", response_model=schemas.Book)
 def get_book(book_id: int, db: Session = Depends(get_db)):
     db_book = crud.get_book(db, book_id=book_id)

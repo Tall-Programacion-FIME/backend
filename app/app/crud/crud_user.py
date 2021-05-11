@@ -30,9 +30,7 @@ def create_user(db: Session, user: schemas.UserCreate) -> schemas.User:
     return db_user
 
 
-def delete_user(
-    background_tasks: BackgroundTasks, db: Session,  user_id: int
-):
+def delete_user(background_tasks: BackgroundTasks, db: Session, user_id: int):
     user = get_user(db, user_id=user_id)
     user_books = user.books_for_sale
     background_tasks.add_task(
@@ -45,9 +43,7 @@ def delete_user(
     db.commit()
 
 
-def ban_user(
-    background_tasks: BackgroundTasks, db: Session,  user_email: str
-):
+def ban_user(background_tasks: BackgroundTasks, db: Session, user_email: str):
     user = get_user_by_email(db, email=user_email)
     delete_user(background_tasks, db, user_id=user.id)
     db_banned_user = models.BannedUser(email=user_email)
