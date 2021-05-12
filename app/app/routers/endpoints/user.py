@@ -85,9 +85,7 @@ def ban_user(
     admin: schemas.User = Depends(get_current_admin),
 ):
     user = crud.get_user(db, user_id=user_id)
-    crud.ban_user(
-        background_tasks=background_tasks, db=db, es=es, user_email=user.email
-    )
+    crud.ban_user(background_tasks=background_tasks, db=db, user_email=user.email)
     return JSONResponse(status_code=200, content={"detail": "User banned"})
 
 

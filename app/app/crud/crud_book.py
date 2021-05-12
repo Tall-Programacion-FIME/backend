@@ -27,12 +27,15 @@ def update_book(db: Session, book: schemas.BookUpdate, book_id: int) -> schemas.
     return db_book
 
 
-def delete_book(db: Session, book_id: int):
+def delete_book(background_tasks: BackgroundTasks, db: Session, book_id: int):
     db_book: models.Book = (
         db.query(models.Book).filter(models.Book.id == book_id).first()
     )
     s3_url = db_book.cover_url
     s3_name = s3_url.split("/")[-1]
+    background_tasks.add_task(
+        storage_client.delete_object, Bucket=settings.BUCKET_NAME, Key=s3_name
+    )
     db.delete(db_book)
     db.commit()
 
