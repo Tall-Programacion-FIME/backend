@@ -4,7 +4,7 @@ from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
 from . import crud, schemas
-from .db import SessionLocal, es
+from .db import SessionLocal
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
@@ -15,13 +15,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
-
-def get_es():
-    try:
-        yield es
-    finally:
-        ...
 
 
 def get_current_user(

@@ -18,7 +18,6 @@ class __Settings(BaseSettings):
     AWS_SECRET_KEY: str
     BUCKET_NAME: str = "book-covers-fime"
     REGION: str = "us-east-1"
-    ELASTICSEARCH_URL: str
     ORIGINS: List[str] = []
 
 

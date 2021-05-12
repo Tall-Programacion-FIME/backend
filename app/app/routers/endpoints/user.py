@@ -6,8 +6,6 @@ import app.schemas as schemas
 import jwt
 from app.core import utils
 from app.core.settings import settings
-from app.dependencies import get_es
-from elasticsearch import Elasticsearch
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -84,13 +82,10 @@ def ban_user(
     background_tasks: BackgroundTasks,
     user_id: int,
     db: Session = Depends(get_db),
-    es: Elasticsearch = Depends(get_es),
     admin: schemas.User = Depends(get_current_admin),
 ):
     user = crud.get_user(db, user_id=user_id)
-    crud.ban_user(
-        background_tasks=background_tasks, db=db, es=es, user_email=user.email
-    )
+    crud.ban_user(background_tasks=background_tasks, db=db, user_email=user.email)
     return JSONResponse(status_code=200, content={"detail": "User banned"})
 
 
