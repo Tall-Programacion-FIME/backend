@@ -76,7 +76,8 @@ async def create_book(
 def list_books(db: Session = Depends(get_db), params: PaginationParams = Depends()):
     return paginate(
         db.query(models.Book)
-        .filter(models.Book.sold != True or models.Book.marked_for_delete != True)
+        .filter(models.Book.sold != True)
+        .filter(models.Book.marked_for_delete != True)
         .order_by(models.Book.id.desc()),
         params,
     )
@@ -106,7 +107,6 @@ def update_book(
 
 @router.delete("/{book_id}")
 def delete_book(
-    background_tasks: BackgroundTasks,
     book_id: int,
     user: schemas.User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -114,7 +114,7 @@ def delete_book(
     current_book = crud.get_book(db, book_id=book_id)
     if user.id != current_book.owner_id and not user.is_admin:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    crud.delete_book(background_tasks, db, book_id=book_id)
+    crud.delete_book(db, book_id=book_id)
     return JSONResponse(status_code=200, content={"detail": "Book deleted"})
 
 
