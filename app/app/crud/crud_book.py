@@ -27,6 +27,14 @@ def update_book(db: Session, book: schemas.BookUpdate, book_id: int) -> schemas.
     return db_book
 
 
+def sell_book(db: Session, book_id: int):
+    db_book: models.Book = (
+        db.query(models.Book).filter(models.Book.id == book_id).first()
+    )
+    db_book.sold = True
+    db.commit()
+
+
 def delete_book(background_tasks: BackgroundTasks, db: Session, book_id: int):
     db_book: models.Book = (
         db.query(models.Book).filter(models.Book.id == book_id).first()
