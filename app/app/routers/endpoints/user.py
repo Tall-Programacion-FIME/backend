@@ -79,13 +79,12 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 
 @router.delete("/{user_id}/ban")
 def ban_user(
-    background_tasks: BackgroundTasks,
     user_id: int,
     db: Session = Depends(get_db),
     admin: schemas.User = Depends(get_current_admin),
 ):
     user = crud.get_user(db, user_id=user_id)
-    crud.ban_user(background_tasks=background_tasks, db=db, user_email=user.email)
+    crud.ban_user(db=db, user_email=user.email)
     return JSONResponse(status_code=200, content={"detail": "User banned"})
 
 
