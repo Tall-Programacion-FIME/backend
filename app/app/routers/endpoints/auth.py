@@ -11,7 +11,7 @@ router = APIRouter()
 @router.post(
     "/token",
     response_model=schemas.Token,
-    responses={401: {"description": "Incorrect username or password"}},
+    responses={401: {"description": "Email o contraseña incorrecto"}},
 )
 async def login_for_access_token(
     user: schemas.UserToken,
@@ -25,13 +25,13 @@ async def login_for_access_token(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Correo o contraseña incorrecta",
+            detail="Email o contraseña incorrecta",
             headers={"WWW-Authenticate": "Bearer"},
         )
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="No se ha activado la cuenta, por favor revisa tu correo.",
+            detail="No se ha activado la cuenta, por favor revisa tu correo",
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = authorize.create_access_token(subject=user.email)
