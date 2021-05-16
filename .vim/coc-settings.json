@@ -1,0 +1,10 @@
+{
+	"python.pythonPath": "/home/sebastian/Projects/backend/.venv/bin/python",
+	"coc.preferences.formatOnSaveFiletypes": [
+		"python",
+		"yaml",
+		"json"
+	],
+	"python.formatting.provider": "black",
+	"python.formatting.blackPath": ".venv/bin/black"
+}
