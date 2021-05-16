@@ -85,7 +85,7 @@ def ban_user(
 ):
     user = crud.get_user(db, user_id=user_id)
     crud.ban_user(db=db, user_email=user.email)
-    return JSONResponse(status_code=200, content={"detail": "Usuario Baneado"})
+    return JSONResponse(status_code=200, content={"detail": "Usuario baneado"})
 
 
 @router.get("/verify/{token}")

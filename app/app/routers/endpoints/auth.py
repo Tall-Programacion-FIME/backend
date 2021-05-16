@@ -11,7 +11,7 @@ router = APIRouter()
 @router.post(
     "/token",
     response_model=schemas.Token,
-    responses={401: {"description": "Email o Contraseña incorrecto"}},
+    responses={401: {"description": "Email o contraseña incorrecto"}},
 )
 async def login_for_access_token(
     user: schemas.UserToken,
