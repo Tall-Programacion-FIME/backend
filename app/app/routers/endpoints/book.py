@@ -34,7 +34,7 @@ router = APIRouter()
 @router.post(
     "/create",
     response_model=schemas.Book,
-    responses={400: {"description": "File type not supported"}},
+    responses={400: {"description": "Tipo de archivo no soportado"}},
 )
 async def create_book(
     name: str = Form(...),
@@ -47,7 +47,8 @@ async def create_book(
     _, file_extension = path.splitext(cover.filename)
     if file_extension not in [".jpeg", ".jpg", ".png"]:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="File type not supported"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Tipo de archivo no soportado",
         )
     new_file_name = uuid4().hex + file_extension
 
@@ -87,7 +88,7 @@ def list_books(db: Session = Depends(get_db), params: PaginationParams = Depends
 def get_book(book_id: int, db: Session = Depends(get_db)):
     db_book = crud.get_book(db, book_id=book_id)
     if db_book is None:
-        raise HTTPException(status_code=404, detail="Book not found")
+        raise HTTPException(status_code=404, detail="Libro no Encontrado")
     return db_book
 
 
@@ -115,7 +116,7 @@ def delete_book(
     if user.id != current_book.owner_id and not user.is_admin:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     crud.delete_book(db, book_id=book_id)
-    return JSONResponse(status_code=200, content={"detail": "Book deleted"})
+    return JSONResponse(status_code=200, content={"detail": "Libro Eliminado"})
 
 
 @router.delete("/mark-sold/{book_id}")
@@ -128,4 +129,4 @@ def mark_sold(
     if user.id != current_book.owner_id and not user.is_admin:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     sell_book(db, book_id)
-    return JSONResponse(status_code=200, content={"detail": "Book deleted"})
+    return JSONResponse(status_code=200, content={"detail": "Libro Eliminado"})

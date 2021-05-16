@@ -42,7 +42,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     banned_user = crud.get_banned_user(db, email=user.email)
     if banned_user:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Has sido baneado."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Has sido baneado"
         )
     if db_user:
         raise HTTPException(
@@ -72,7 +72,7 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     db_user = crud.get_user(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
         )
     return db_user
 
@@ -85,7 +85,7 @@ def ban_user(
 ):
     user = crud.get_user(db, user_id=user_id)
     crud.ban_user(db=db, user_email=user.email)
-    return JSONResponse(status_code=200, content={"detail": "User banned"})
+    return JSONResponse(status_code=200, content={"detail": "Usuario Baneado"})
 
 
 @router.get("/verify/{token}")
